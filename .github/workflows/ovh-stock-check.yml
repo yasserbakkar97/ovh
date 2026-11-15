@@ -13,15 +13,20 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          PLAN_CODE: vps-2027-model1
+          PLAN_CODES: "vps-2027-model1 vps-2027-model2"
           SUBSIDIARY: WE
         run: |
-          RESPONSE=$(curl -s "https://eu.api.ovh.com/1.0/vps/order/rule/datacenter?ovhSubsidiary=${SUBSIDIARY}&planCode=${PLAN_CODE}")
-          echo "$RESPONSE"
-          AVAILABLE=$(echo "$RESPONSE" | jq -r '[.datacenters[]? | select(.linuxStatus == "available") | .datacenter] | join(", ")')
-          if [ -n "$AVAILABLE" ]; then
+          MESSAGE=""
+          for PLAN in $PLAN_CODES; do
+            RESPONSE=$(curl -s "https://eu.api.ovh.com/1.0/vps/order/rule/datacenter?ovhSubsidiary=${SUBSIDIARY}&planCode=${PLAN}")
+            echo "${PLAN}: ${RESPONSE}"
+            AVAILABLE=$(echo "$RESPONSE" | jq -r '[.datacenters[]? | select(.linuxStatus == "available" and (.code | startswith("eu-"))) | .datacenter] | join(", ")')
+            if [ -n "$AVAILABLE" ]; then
+              MESSAGE+="✅ ${PLAN} متاح الآن (Linux) في: ${AVAILABLE}"$'\n'"https://www.ovhcloud.com/en/vps/configurator/?planCode=${PLAN}"$'\n\n'
+            fi
+          done
+          if [ -n "$MESSAGE" ]; then
             curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
               -d chat_id="${TELEGRAM_CHAT_ID}" \
-              --data-urlencode text="✅ ${PLAN_CODE} متاح الآن في: ${AVAILABLE}
-          https://www.ovhcloud.com/en/vps/configurator/?planCode=${PLAN_CODE}"
+              --data-urlencode text="${MESSAGE}"
           fi
