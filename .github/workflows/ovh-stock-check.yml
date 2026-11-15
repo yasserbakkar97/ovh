@@ -18,7 +18,7 @@ jobs:
         run: |
           RESPONSE=$(curl -s "https://eu.api.ovh.com/1.0/vps/order/rule/datacenter?ovhSubsidiary=${SUBSIDIARY}&planCode=${PLAN_CODE}")
           echo "$RESPONSE"
-          AVAILABLE=$(echo "$RESPONSE" | jq -r '[.datacenters[]? | select(.linuxStatus == "available" or .status == "available") | .datacenter] | join(", ")')
+          AVAILABLE=$(echo "$RESPONSE" | jq -r '[.datacenters[]? | select(.linuxStatus == "available") | .datacenter] | join(", ")')
           if [ -n "$AVAILABLE" ]; then
             curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
               -d chat_id="${TELEGRAM_CHAT_ID}" \
