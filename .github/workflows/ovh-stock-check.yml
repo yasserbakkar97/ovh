@@ -14,7 +14,7 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PLAN_CODES: "vps-2027-model1 vps-2027-model2"
-          SUBSIDIARY: WE
+          SUBSIDIARY: IE
         run: |
           MESSAGE=""
           for PLAN in $PLAN_CODES; do
