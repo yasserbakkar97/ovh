@@ -20,7 +20,7 @@ jobs:
           for PLAN in $PLAN_CODES; do
             RESPONSE=$(curl -s "https://eu.api.ovh.com/1.0/vps/order/rule/datacenter?ovhSubsidiary=${SUBSIDIARY}&planCode=${PLAN}")
             echo "${PLAN}: ${RESPONSE}"
-            AVAILABLE=$(echo "$RESPONSE" | jq -r '[.datacenters[]? | select(.status == "available" and (.code | startswith("eu-"))) | .datacenter] | join(", ")')
+            AVAILABLE=$(echo "$RESPONSE" | jq -r '[.datacenters[]? | select(.linuxStatus == "available" and (.code | startswith("eu-"))) | .datacenter] | join(", ")')
             if [ -n "$AVAILABLE" ]; then
               MESSAGE+="✅ ${PLAN} متاح الآن في: ${AVAILABLE}"$'\n'"https://www.ovhcloud.com/en/vps/configurator/?planCode=${PLAN}"$'\n\n'
             fi
